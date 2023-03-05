@@ -41,7 +41,7 @@ namespace DeconstructorMod
         //add back blueprint store
         public override List<IApplianceProperty> Properties => new List<IApplianceProperty>()
         {
-            new CBlueprintStore(), new CItemHolder(), KitchenPropertiesUtils.GetCItemHolderFilter(ItemCategory.Crates, true, false), KitchenPropertiesUtils.GetCItemHolderFilter(ItemCategory.NonLoadoutCrate, true, false), new CTakesDuration(), new CIsInteractive(), new CIDeconstruct(), new CPreservesContentsOvernight()
+            new CBlueprintStore(), new CTakesDuration(), new CIsInteractive(), new CIDeconstruct()
         };
         public override void OnRegister(GameDataObject gameDataObject)
         {
