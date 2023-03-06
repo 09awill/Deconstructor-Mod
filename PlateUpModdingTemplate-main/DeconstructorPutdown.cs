@@ -14,6 +14,7 @@ using Unity.Entities;
 using UnityEngine.Scripting;
 using UnityEngine.UIElements;
 using static Kitchen.ShopBuilder.CreateShopOptions;
+using static UnityEngine.EventSystems.EventTrigger;
 
 namespace KitchenDeconstructor
 {
@@ -27,32 +28,19 @@ namespace KitchenDeconstructor
         private CBlueprintStore m_Store;
         private CIDeconstruct m_Deconstruct;
         private bool m_Pickup = false;
-
-        private EntityQuery m_RebuyChances;
-        private EntityQuery m_RefreshLetterChances;
         protected override InteractionType RequiredType => InteractionType.Grab;
-
-        protected override void Initialise()
-        {
-            m_RebuyChances = GetEntityQuery(typeof(CBlueprintRebuyableChance));
-            m_RefreshLetterChances = GetEntityQuery(typeof(CBlueprintRefreshChance));
-            base.Initialise();
-        }
         protected override bool IsPossible(ref InteractionData data)
         {
             if (!Require<CItemHolder>(data.Interactor, out m_Holder))
             {
-                //Mod.LogInfo("Attempted Deconstructor put down but couldn't find ");
                 return false;
             }
             if (!Require<CBlueprintStore>(data.Target, out m_Store))
             {
-                //Mod.LogInfo("Attempted Deconstructor put down but couldn't find blueprint store on the cabinet");
                 return false;
             }
             if (!Require<CIDeconstruct>(data.Target, out m_Deconstruct))
             {
-                //Mod.LogInfo("Attempted Deconstructor put down but couldn't find blueprint store on the cabinet");
                 return false;
             }
             if (m_Store.InUse)
@@ -62,7 +50,6 @@ namespace KitchenDeconstructor
                 {
                     return false;
                 }
-                //Mod.LogInfo("Attempted Deconstructor put down but store was in use");
             } else
             {
                 m_Pickup = false;
@@ -74,10 +61,6 @@ namespace KitchenDeconstructor
                 {
                     return false;
                 }
-                if (Has<CApplianceBlueprint>(m_Holder.HeldItem))
-                {
-                    return false;
-                }
             }
             return true;
         }
@@ -86,164 +69,112 @@ namespace KitchenDeconstructor
         {
             if (m_Pickup)
             {
-                //change to deconstructed
-                m_Appliance = m_Store.ApplianceID;
-                Mod.LogWarning("Starting Pickup");
-                //If Appliance should be blueprint
-                Entity entity = data.Context.CreateEntity();
-                data.Context.Set(entity, new CCreateAppliance
+                if (m_Deconstruct.isDeconstructed)
                 {
-                    ID = m_Store.BlueprintID
-                });
-                data.Context.Set(entity, GetComponent<CPosition>(data.Interactor));
-                data.Context.Set(entity, new CApplianceBlueprint
-                {
-                    Appliance = m_Store.ApplianceID,
-                    IsCopy = m_Store.HasBeenCopied
-                });
-                Mod.LogWarning("Setting require ping");
-
-                if (!Preferences.Get<bool>(Pref.RequirePingForBlueprintInfo))
-                {
-                    data.Context.Set(entity, new CShowApplianceInfo
+                    //change to deconstructed
+                    m_Appliance = m_Store.ApplianceID;
+                    Mod.LogWarning("Starting Pickup");
+                    //If Appliance should be blueprint
+                    Entity entity = data.Context.CreateEntity();
+                    data.Context.Set(entity, new CCreateAppliance
+                    {
+                        ID = m_Store.BlueprintID
+                    });
+                    data.Context.Set(entity, GetComponent<CPosition>(data.Interactor));
+                    data.Context.Set(entity, new CApplianceBlueprint
                     {
                         Appliance = m_Store.ApplianceID,
-                        Price = m_Store.Price,
-                        ShowPrice = true
                     });
-                }
+                    Mod.LogWarning("Setting require ping");
 
-                data.Context.Set(entity, new CForSale
-                {
-                    Price = m_Store.Price
-                });
-                data.Context.Set(entity, default(CShopEntity));
-                Mod.LogWarning("Assigning holding references");
-
-                data.Context.Add<CHeldAppliance>(entity);
-                data.Context.Set(entity, new CHeldBy
-                {
-                    Holder = data.Interactor
-                });
-                data.Context.Set(data.Interactor, new CItemHolder
-                {
-                    HeldItem = entity
-                });
-
-                Mod.LogWarning("Starting Store Setup");
-
-                if (m_Store.HasBeenCopied)
-                {
-                    m_Store.HasBeenCopied = false;
-                }
-                else
-                {
-                    m_Store.InUse = false;
-                    m_Store.ApplianceID = 0;
-                    m_Store.Price = 0;
-                    m_Store.BlueprintID = 0;
-                }
-
-
-                m_Store.HasBeenMadeFree = false;
-                SetComponent(data.Target, m_Store);
-                Mod.LogWarning("Setup All of components");
-
-                //Buy appliance
-
-                NativeArray<CBlueprintRebuyableChance> nativeArray = m_RebuyChances.ToComponentDataArray<CBlueprintRebuyableChance>(Allocator.Temp);
-                NativeArray<CBlueprintRefreshChance> nativeArray2 = m_RefreshLetterChances.ToComponentDataArray<CBlueprintRefreshChance>(Allocator.Temp);
-                EntityManager.RemoveComponent<CForSale>(entity);
-                EntityManager.RemoveComponent<CShowApplianceInfo>(entity);
-                EntityManager.RemoveComponent<CApplianceBlueprint>(entity);
-                EntityManager.RemoveComponent<CShopEntity>(entity);
-                EntityManager.AddComponent<CRemoveView>(entity);
-                Set(entity, new CRequiresView
-                {
-                    Type = ViewType.Appliance
-                });
-                Set(entity, new CCreateAppliance
-                {
-                    ID = m_Appliance.ID
-                });
-
-
-                float rebuyable_chance = 0f;
-                foreach (CBlueprintRebuyableChance item in nativeArray)
-                {
-                    rebuyable_chance += (1f - rebuyable_chance) * item.Chance;
-                }
-
-                float refresh_chance = 0f;
-                foreach (CBlueprintRefreshChance item2 in nativeArray2)
-                {
-                    refresh_chance += (1f - refresh_chance) * item2.Chance;
-                }
-
-                /*
-
-                if (!Blueprint.IsCopy && Random.value < rebuyable_chance)
-                {
-                    Entity e2 = EntityManager.CreateEntity();
-                    Set(e2, new CCreateAppliance
+                    if (!Preferences.Get<bool>(Pref.RequirePingForBlueprintInfo))
                     {
-                        ID = Blueprint.Appliance
-                    });
-                    Set(e2, new CPosition(Position));
-                    Set(e2, new CApplianceBlueprint
-                    {
-                        Appliance = Blueprint.Appliance,
-                    });
-                    if (Has<CShowApplianceInfo>(data.Target))
-                    {
-                        Set(e2, new CShowApplianceInfo
+                        data.Context.Set(entity, new CShowApplianceInfo
                         {
-                            Appliance = Blueprint.Appliance,
-                            Price = Sale.Price,
+                            Appliance = m_Store.ApplianceID,
+                            Price = m_Store.Price,
                             ShowPrice = true
                         });
                     }
-                    Set(e2, new CForSale
-                    {
-                        Price = Sale.Price
-                    });
-                    Set(e2, default(CShopEntity));
-                }
 
-                if (!Blueprint.IsCopy && Random.value < refresh_chance)
+                    data.Context.Set(entity, new CForSale
+                    {
+                        Price = m_Store.Price
+                    });
+                    data.Context.Set(entity, default(CShopEntity));
+                    Mod.LogWarning("Assigning holding references");
+
+                    data.Context.Add<CHeldAppliance>(entity);
+                    data.Context.Set(entity, new CHeldBy
+                    {
+                        Holder = data.Interactor
+                    });
+                    data.Context.Set(data.Interactor, new CItemHolder
+                    {
+                        HeldItem = entity
+                    });
+                    Mod.LogWarning("Setup All of components");
+                } else
                 {
-                    Entity e3 = EntityManager.CreateEntity();
-                    Set(e3, new CNewShop
+                    Entity entity = data.Context.CreateEntity();
+                    data.Context.Set(entity, new CCreateAppliance
                     {
-                        Tags = (ShoppingTags.Technology | ShoppingTags.FrontOfHouse | ShoppingTags.Plumbing | ShoppingTags.Cooking | ShoppingTags.Automation | ShoppingTags.Misc | ShoppingTags.Office),
-                        FixedLocation = true,
-                        Location = Position.Position.Rounded()
+                        ID = m_Store.ApplianceID
+                    });
+
+                    data.Context.Set(entity, GetComponent<CPosition>(data.Interactor));
+                    data.Context.Add<CHeldAppliance>(entity);
+
+                    data.Context.Set(entity, new CHeldBy
+                    {
+                        Holder = data.Interactor
+                    });
+                    data.Context.Set(data.Interactor, new CItemHolder
+                    {
+                        HeldItem = entity
                     });
                 }
-                */
-
-                nativeArray.Dispose();
-                nativeArray2.Dispose();
-
-
-                /*
-                Entity entity = data.Context.CreateEntity();
-                data.Context.set
-
-                Mod.LogInfo("Picking up Appliance from Deconstructor");
-                Set<CPosition>(m_CabinetHolder.HeldItem, CPosition.Hidden);
-                Set<CItemHolder>(data.Interactor, new CItemHolder() { HeldItem = m_CabinetHolder.HeldItem });
-                EntityManager.RemoveComponent<CPreservedOvernight>(m_CabinetHolder.HeldItem);
-                //EntityManager.RemoveComponent<CCreateAppliance>(m_CabinetHolder.HeldItem);
-                */
+                CBlueprintStore bps = new CBlueprintStore()
+                {
+                    InUse = false,
+                    HasBeenCopied = true,
+                    HasBeenMadeFree = true,
+                    HasBeenUpgraded = true,
+                    ApplianceID = 0,
+                    BlueprintID = 0,
+                    Price = 0
+                };
+                SetComponent(data.Target, bps);
             }
             else
             {
-                m_Store.InUse = true;
-                m_Store.ApplianceID = m_Appliance.ID;
-                m_Store.Price = 0;
-                m_Store.BlueprintID = ApplianceReferences.Blueprint;
-                SetComponent(data.Target, m_Store);
+                if (Require<CApplianceBlueprint>(m_Holder.HeldItem, out CApplianceBlueprint bp))
+                {
+                    if (Require<CForSale>(m_Holder.HeldItem, out CForSale fs))
+                    {
+                        Mod.LogWarning("has Appliance blueprint so setting to already deconstructed");
+                        m_Deconstruct.isDeconstructed = true;
+                        SetComponent(data.Target, m_Deconstruct);
+                        EntityManager.AddComponent<CIsInactive>(data.Target);
+                        m_Store.InUse = true;
+                        m_Store.ApplianceID = bp.Appliance;
+                        m_Store.Price = fs.Price;
+                        m_Store.BlueprintID = ApplianceReferences.Blueprint;
+                        SetComponent(data.Target, m_Store);
+                    }
+                } else
+                {
+                    Mod.LogWarning("is Appliance blueprint so setting to not deconstructed");
+
+                    m_Deconstruct.isDeconstructed = false;
+                    SetComponent(data.Target, m_Deconstruct);
+                    EntityManager.RemoveComponent<CIsInactive>(data.Target);
+                    m_Store.InUse = true;
+                    m_Store.ApplianceID = m_Appliance.ID;
+                    m_Store.Price = 0;
+                    m_Store.BlueprintID = ApplianceReferences.Blueprint;
+                    SetComponent(data.Target, m_Store);
+                }
                 EntityManager.DestroyEntity(m_Holder.HeldItem);
                 data.Context.Set(data.Interactor, default(CItemHolder));
             }

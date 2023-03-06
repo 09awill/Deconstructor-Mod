@@ -34,8 +34,6 @@ namespace KitchenDeconstructor
         public const bool DEBUG_MODE = false;
 #endif
 
-        public static Process Deconstruct => GetModdedGDO<Process, DeconstructProcess>();
-
         internal static Appliance Deconstructor => GetModdedGDO<Appliance, Deconstructor>();
 
         public static AssetBundle Bundle;
@@ -52,7 +50,6 @@ namespace KitchenDeconstructor
             LogInfo("Attempting to register game data...");
 
             AddGameDataObject<Deconstructor>();
-            AddGameDataObject<DeconstructProcess>();
 
             LogInfo("Done loading game data.");
         }
