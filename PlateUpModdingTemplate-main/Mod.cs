@@ -1,5 +1,4 @@
-﻿using DeconstructorMod;
-using KitchenData;
+﻿using KitchenData;
 using KitchenLib;
 using KitchenLib.Customs;
 using KitchenLib.Event;
@@ -8,7 +7,9 @@ using KitchenLib.Utils;
 using KitchenMods;
 using System.Linq;
 using System.Reflection;
+using TMPro;
 using UnityEngine;
+using UnityEngine.VFX;
 
 // Namespace should have "Kitchen" in the beginning
 namespace KitchenDeconstructor
@@ -66,6 +67,11 @@ namespace KitchenDeconstructor
             LogInfo("Attempting to load asset bundle...");
             Bundle = mod.GetPacks<AssetBundleModPack>().SelectMany(e => e.AssetBundles).First();
             LogInfo("Done loading asset bundle.");
+
+            Bundle.LoadAllAssets<VisualEffect>();
+            Bundle.LoadAllAssets<VisualEffectAsset>();
+            Bundle.LoadAllAssets<AudioClip>();
+
 
             // Register custom GDOs
             AddGameData();

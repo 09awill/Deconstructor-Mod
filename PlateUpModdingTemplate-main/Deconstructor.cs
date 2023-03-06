@@ -1,30 +1,19 @@
-﻿using ApplianceLib.Api;
-using BurritoMod.Customs.BurritoWithSalad;
-using IngredientLib.Util;
-using JetBrains.Annotations;
+﻿using IngredientLib.Util;
 using Kitchen;
 using KitchenData;
-using KitchenDeconstructor;
 using KitchenLib.Customs;
-using KitchenLib.References;
 using KitchenLib.Utils;
 using MessagePack;
-using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using TMPro;
 using Unity.Entities;
 using UnityEngine;
-using static KitchenData.Appliance;
-using static Unity.Burst.Intrinsics.X86.Avx;
+using UnityEngine.VFX;
 
-namespace DeconstructorMod
+namespace KitchenDeconstructor
 {
-    internal class Deconstructor : CustomAppliance
+    public class Deconstructor : CustomAppliance
     {
 
         public override string UniqueNameID => "Deconstructor";
@@ -45,7 +34,7 @@ namespace DeconstructorMod
         static FieldInfo CopyTitle = ReflectionUtils.GetField<BlueprintStoreView>("CopyTitle", BindingFlags.NonPublic | BindingFlags.Instance);
         static FieldInfo CopyRenderer = ReflectionUtils.GetField<BlueprintStoreView>("CopyRenderer", BindingFlags.NonPublic | BindingFlags.Instance);
         static FieldInfo CopyBlueprintMaterial = ReflectionUtils.GetField<BlueprintStoreView>("CopyBlueprintMaterial", BindingFlags.NonPublic | BindingFlags.Instance);
-
+        
         //static FieldInfo pushObject = ReflectionUtils.GetField<BlueprintStoreView>("PushObject", BindingFlags.NonPublic | BindingFlags.Instance);
 
 
@@ -60,7 +49,20 @@ namespace DeconstructorMod
         };
         public override void OnRegister(GameDataObject gameDataObject)
         {
-            DeconstructorView view = Prefab.AddComponent<DeconstructorView>();
+            BlueprintStoreView view = Prefab.AddComponent<BlueprintStoreView>();
+            
+            DeconstructorView deconstructorView = Prefab.AddComponent<DeconstructorView>();
+            VisualEffect vfx = Prefab.GetChildFromPath("VFX/Deconstruct").GetComponent<VisualEffect>();
+            vfx.visualEffectAsset = Mod.Bundle.LoadAsset<VisualEffectAsset>("VFX_Deconstruct");
+            deconstructorView.UpgradeEffect = vfx;
+            deconstructorView.CabinetBase = Prefab.GetChildFromPath("WarehouseCabinet/Cabinet Body");
+            AudioSource source = Prefab.GetChildFromPath("VFX/Deconstruct").AddComponent<AudioSource>();
+            source.playOnAwake = false;
+            source.clip = Mod.Bundle.LoadAsset<AudioClip>("deconstructSoundEffect");
+            deconstructorView.AudioClip = source.clip;
+            deconstructorView.AudioSource = source;
+
+
             Animator.SetValue(view, Prefab.GetComponent<Animator>());
             TextMeshPro tmp = Prefab.GetChild("Blueprint/Name").AddComponent<TextMeshPro>();
             tmp.fontSize = 120;
@@ -88,7 +90,7 @@ namespace DeconstructorMod
 
 
 
-
+            
 
             Material[] mats = new Material[] { MaterialUtils.GetExistingMaterial("Metal - Soft Green Paint"), MaterialUtils.GetExistingMaterial("Metal Very Dark") };
             Prefab.GetChildFromPath("WarehouseCabinet/Cabinet Body").ApplyMaterial(mats);
@@ -163,8 +165,49 @@ namespace DeconstructorMod
             //CDestroyItemAtDay
         }
 
-        internal class DeconstructorView : BlueprintStoreView
+        public class DeconstructorView : UpdatableObjectView<DeconstructorView.ViewData>
         {
+            [MessagePackObject(false)]
+            public struct ViewData : ISpecificViewData, IViewData, IViewResponseData, IViewData.ICheckForChanges<ViewData>
+            {
+                [Key(0)]
+                public bool InUse;
+
+                [Key(1)]
+                public bool IsDeconstructing;
+
+                [Key(2)]
+                public bool HasDeconstructEvent;
+
+                [Key(3)]
+                public bool IsDay;
+
+                public bool IsChangedFrom(ViewData check)
+                {
+                    return InUse != check.InUse || IsDeconstructing != check.IsDeconstructing || HasDeconstructEvent != check.HasDeconstructEvent || IsDay != check.IsDay;
+                }
+
+                public IUpdatableObject GetRelevantSubview(IObjectView view)
+                {
+                    return view.GetSubView<DeconstructorView>();
+                }
+            }
+            public VisualEffect UpgradeEffect;
+            public GameObject CabinetBase;
+            public AudioClip AudioClip;
+            public AudioSource AudioSource;
+
+            public ViewData Data;
+            protected override void UpdateData(ViewData data)
+            {
+                if(data.IsDeconstructing && !Data.IsDeconstructing && Data.IsDay)
+                {
+                    UpgradeEffect?.SendEvent("BurstDeconstruct");
+                    AudioSource.Play();
+                }
+                Data = data;
+            }
+
         }
     }
     
