@@ -36,6 +36,8 @@ namespace KitchenDeconstructor
 #endif
 
         internal static Appliance Deconstructor => GetModdedGDO<Appliance, Deconstructor>();
+        internal static Process DeconstructProcess => GetModdedGDO<Process, DeconstructProcess>();
+
 
         public static AssetBundle Bundle;
 
@@ -51,6 +53,7 @@ namespace KitchenDeconstructor
             LogInfo("Attempting to register game data...");
 
             AddGameDataObject<Deconstructor>();
+            AddGameDataObject<DeconstructProcess>();
 
             LogInfo("Done loading game data.");
         }
@@ -66,13 +69,20 @@ namespace KitchenDeconstructor
 
             LogInfo("Attempting to load asset bundle...");
             Bundle = mod.GetPacks<AssetBundleModPack>().SelectMany(e => e.AssetBundles).First();
-            LogInfo("Done loading asset bundle.");
 
             Bundle.LoadAllAssets<VisualEffect>();
             Bundle.LoadAllAssets<VisualEffectAsset>();
             Bundle.LoadAllAssets<AudioClip>();
-
-
+            Bundle.LoadAllAssets<TMP_SpriteAsset>();
+            
+            
+            var spriteAsset = Bundle.LoadAsset<TMP_SpriteAsset>("cogspriteasset");
+            Material m = new Material(TMP_Settings.defaultSpriteAsset.material);
+            spriteAsset.material = m;
+            spriteAsset.material.mainTexture = Bundle.LoadAsset<Texture2D>("cogpngwhite");
+            TMP_Settings.defaultSpriteAsset.fallbackSpriteAssets.Add(spriteAsset);
+            
+            LogInfo("Done loading asset bundle.");
             // Register custom GDOs
             AddGameData();
 
