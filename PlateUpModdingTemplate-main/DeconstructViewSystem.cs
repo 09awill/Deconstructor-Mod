@@ -1,4 +1,5 @@
 ﻿using Kitchen;
+using KitchenData;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,7 @@ namespace KitchenDeconstructor
                     IsDeconstructing = deconstruct.isDeconstructed,
                     HasDeconstructEvent = deconstruct.isDeconstructed,
                     IsDay = isDay,
+                    Appliance = blueprintStore.ApplianceID,
                 });
             }
             
