@@ -1,4 +1,5 @@
-﻿using IngredientLib.Util;
+﻿using DeconstructorMod;
+using IngredientLib.Util;
 using Kitchen;
 using KitchenData;
 using KitchenLib.Customs;
@@ -6,6 +7,7 @@ using KitchenLib.Utils;
 using MessagePack;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using TMPro;
 using Unity.Entities;
 using UnityEngine;
@@ -45,11 +47,11 @@ namespace KitchenDeconstructor
         };
         public override List<IApplianceProperty> Properties => new List<IApplianceProperty>()
         {
-            new CBlueprintStore() { HasBeenCopied = true, HasBeenMadeFree = true, HasBeenUpgraded = true }, new CIsInteractive(), new CIDeconstruct(), new CTakesDuration() { Total = 5f, Active = false, Manual = true, PreserveProgress = true, RequiresRelease = true}, new CDisplayDuration()
+            new CBlueprintStore() { HasBeenCopied = true, HasBeenMadeFree = true, HasBeenUpgraded = true }, new CIsInteractive(), new CIDeconstruct(), KitchenPropertiesUtils.GetCTakesDuration(5f, 0, false, true, false, DurationToolType.None, InteractionMode.Items, false, true, true, true,0), KitchenPropertiesUtils.GetCDisplayDuration(false, Mod.DeconstructProcess.ID, true)
         };
         public override void OnRegister(GameDataObject gameDataObject)
         {
-            BlueprintStoreView view = Prefab.AddComponent<BlueprintStoreView>();
+            //BlueprintStoreView view = Prefab.AddComponent<BlueprintStoreView>();
             
             DeconstructorView deconstructorView = Prefab.AddComponent<DeconstructorView>();
             VisualEffect vfx = Prefab.GetChildFromPath("VFX/Deconstruct").GetComponent<VisualEffect>();
@@ -61,18 +63,20 @@ namespace KitchenDeconstructor
             source.clip = Mod.Bundle.LoadAsset<AudioClip>("deconstructSoundEffect");
             deconstructorView.AudioClip = source.clip;
             deconstructorView.AudioSource = source;
+            deconstructorView.Animator = Prefab.GetComponent<Animator>();
+            deconstructorView.ObjectMesh = Prefab.GetChildFromPath("WarehouseCabinet/Lorry");
 
 
-            Animator.SetValue(view, Prefab.GetComponent<Animator>());
-            TextMeshPro tmp = Prefab.GetChild("Blueprint/Name").AddComponent<TextMeshPro>();
-            tmp.fontSize = 120;
-            tmp.fontSizeMax = 120;
-            tmp.fontSizeMin = 18;
-            tmp.enableAutoSizing = true;
-            tmp.enableWordWrapping = true;
-            tmp.enableKerning = true;
-            tmp.wordWrappingRatios = 0.4f;
-
+            //Animator.SetValue(view, Prefab.GetComponent<Animator>());
+            TextMeshPro tmp = Prefab.GetChild("Blueprint/Name").GetComponent<TextMeshPro>();
+            tmp.material = MaterialUtils.GetExistingMaterial("Cake n Truffles Atlas Material_0");
+            tmp.font = FontUtils.GetExistingTMPFont("Blueprint");
+            Mod.LogWarning(tmp.font);
+            
+            deconstructorView.Title = tmp;
+            deconstructorView.Blueprint = Prefab.GetChild("Blueprint");
+            deconstructorView.BlueprintRenderer = Prefab.GetChildFromPath("Blueprint/Blueprint/Cube.001").GetComponent<MeshRenderer>();
+            /*
             Title.SetValue(view, tmp);
 
             Renderer.SetValue(view, Prefab.GetChildFromPath("Blueprint/Blueprint/Cube.001").GetComponent<MeshRenderer>());
@@ -87,10 +91,10 @@ namespace KitchenDeconstructor
             CopyTitle.SetValue(view, tmp);
             CopyRenderer.SetValue(view, Prefab.GetChildFromPath("Blueprint Copy/Blueprint/Cube.001").GetComponent<MeshRenderer>());
             CopyBlueprintMaterial.SetValue(view, Prefab.GetChildFromPath("Blueprint Copy/Blueprint/Cube").GetComponent<MeshRenderer>());
+            */
 
 
 
-            
 
             Material[] mats = new Material[] { MaterialUtils.GetExistingMaterial("Metal - Soft Green Paint"), MaterialUtils.GetExistingMaterial("Metal Very Dark") };
             Prefab.GetChildFromPath("WarehouseCabinet/Cabinet Body").ApplyMaterial(mats);
@@ -182,6 +186,9 @@ namespace KitchenDeconstructor
                 [Key(3)]
                 public bool IsDay;
 
+                [Key(4)]
+                public int Appliance;
+
                 public bool IsChangedFrom(ViewData check)
                 {
                     return InUse != check.InUse || IsDeconstructing != check.IsDeconstructing || HasDeconstructEvent != check.HasDeconstructEvent || IsDay != check.IsDay;
@@ -196,11 +203,52 @@ namespace KitchenDeconstructor
             public GameObject CabinetBase;
             public AudioClip AudioClip;
             public AudioSource AudioSource;
+            public Animator Animator;
+
+            public GameObject ObjectMesh;
+            //blueprints
+            public TextMeshPro Title;
+            public GameObject Blueprint;
+            public MeshRenderer BlueprintRenderer;
 
             public ViewData Data;
+            private static readonly int IsActive = Animator.StringToHash("IsActive");
             protected override void UpdateData(ViewData data)
             {
-                if(data.IsDeconstructing && !Data.IsDeconstructing && Data.IsDay)
+                if (!data.InUse)
+                {
+                    Animator.SetBool(IsActive, value: false);
+                    return;
+                }
+                Animator.SetBool(IsActive, value: true);
+                if (data.InUse)
+                {
+                    if (data.IsDeconstructing)
+                    {
+                        ObjectMesh.SetActive(false);
+                        Blueprint.SetActive(true);
+                    }
+                    else
+                    {
+                        ObjectMesh.SetActive(true);
+                        Blueprint.SetActive(false);
+                    }
+                }
+
+                if (Data.Appliance != data.Appliance && GameData.Main.TryGet<Appliance>(data.Appliance, out var output))
+                {
+                    if (Renderer != null)
+                    {
+                        BlueprintRenderer.material.SetTexture("_Image", PrefabSnapshot.GetSnapshot(output.Prefab));
+                    }
+
+                    if (Title != null)
+                    {
+                        Title.text = output.Name;
+                    }
+
+                }
+                if (data.IsDeconstructing && !Data.IsDeconstructing && Data.IsDay)
                 {
                     UpgradeEffect?.SendEvent("BurstDeconstruct");
                     AudioSource.Play();
