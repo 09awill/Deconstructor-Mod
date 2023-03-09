@@ -11,7 +11,10 @@ namespace KitchenDeconstructor
 {
     public struct CIDeconstruct : IComponentData, IApplianceProperty, IAttachableProperty
     {
-        public bool isDeconstructed;
-
+        public bool IsDeconstructed;
+        public bool InUse;
+        public int ApplianceID;
+        public int Price;
+        public int BlueprintID;
     }
 }

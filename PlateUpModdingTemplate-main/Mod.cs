@@ -76,10 +76,10 @@ namespace KitchenDeconstructor
             Bundle.LoadAllAssets<TMP_SpriteAsset>();
             
             
-            var spriteAsset = Bundle.LoadAsset<TMP_SpriteAsset>("cogspriteasset");
+            var spriteAsset = Bundle.LoadAsset<TMP_SpriteAsset>("cogpngwhitescaled");
             Material m = new Material(TMP_Settings.defaultSpriteAsset.material);
             spriteAsset.material = m;
-            spriteAsset.material.mainTexture = Bundle.LoadAsset<Texture2D>("cogpngwhite");
+            spriteAsset.material.mainTexture = Bundle.LoadAsset<Texture2D>("cogpngwhitescaledTex");
             TMP_Settings.defaultSpriteAsset.fallbackSpriteAssets.Add(spriteAsset);
             
             LogInfo("Done loading asset bundle.");
