@@ -47,11 +47,11 @@ namespace KitchenDeconstructor
         };
         public override List<IApplianceProperty> Properties => new List<IApplianceProperty>()
         {
-            new CBlueprintStore() { HasBeenCopied = true, HasBeenMadeFree = true, HasBeenUpgraded = true }, new CIsInteractive(), new CIDeconstruct(), KitchenPropertiesUtils.GetCTakesDuration(5f, 0, false, true, false, DurationToolType.None, InteractionMode.Items, false, true, true, true,0), KitchenPropertiesUtils.GetCDisplayDuration(false, Mod.DeconstructProcess.ID, true)
+            new CIsInteractive(), new CIDeconstruct(), KitchenPropertiesUtils.GetCTakesDuration(5f, 0, false, true, false, DurationToolType.None, InteractionMode.Items, false, true, true, true,0), KitchenPropertiesUtils.GetCDisplayDuration(false, Mod.DeconstructProcess.ID, true)
         };
         public override void OnRegister(GameDataObject gameDataObject)
         {
-            //BlueprintStoreView view = Prefab.AddComponent<BlueprintStoreView>();
+            /*
             
             DeconstructorView deconstructorView = Prefab.AddComponent<DeconstructorView>();
             VisualEffect vfx = Prefab.GetChildFromPath("VFX/Deconstruct").GetComponent<VisualEffect>();
@@ -66,8 +66,6 @@ namespace KitchenDeconstructor
             deconstructorView.Animator = Prefab.GetComponent<Animator>();
             deconstructorView.ObjectMesh = Prefab.GetChildFromPath("WarehouseCabinet/Lorry");
 
-
-            //Animator.SetValue(view, Prefab.GetComponent<Animator>());
             TextMeshPro tmp = Prefab.GetChild("Blueprint/Name").GetComponent<TextMeshPro>();
             tmp.material = MaterialUtils.GetExistingMaterial("Cake n Truffles Atlas Material_0");
             tmp.font = FontUtils.GetExistingTMPFont("Blueprint");
@@ -76,22 +74,6 @@ namespace KitchenDeconstructor
             deconstructorView.Title = tmp;
             deconstructorView.Blueprint = Prefab.GetChild("Blueprint");
             deconstructorView.BlueprintRenderer = Prefab.GetChildFromPath("Blueprint/Blueprint/Cube.001").GetComponent<MeshRenderer>();
-            /*
-            Title.SetValue(view, tmp);
-
-            Renderer.SetValue(view, Prefab.GetChildFromPath("Blueprint/Blueprint/Cube.001").GetComponent<MeshRenderer>());
-            IsMakingFree.SetValue(view, Prefab.GetChildFromPath("Indicators/DiscountDesk"));
-            IsUpgrading.SetValue(view, Prefab.GetChildFromPath("Indicators/ResearchFlasky"));
-            IsCopying.SetValue(view, Prefab.GetChildFromPath("Indicators/CopyDesk (1)"));
-            CopyBlueprint.SetValue(view, Prefab.GetChildFromPath("Blueprint Copy"));
-
-            tmp = Prefab.GetChild("Blueprint Copy/Name").AddComponent<TextMeshPro>();
-            tmp.fontSize = 0;
-            
-            CopyTitle.SetValue(view, tmp);
-            CopyRenderer.SetValue(view, Prefab.GetChildFromPath("Blueprint Copy/Blueprint/Cube.001").GetComponent<MeshRenderer>());
-            CopyBlueprintMaterial.SetValue(view, Prefab.GetChildFromPath("Blueprint Copy/Blueprint/Cube").GetComponent<MeshRenderer>());
-            */
 
 
 
@@ -119,20 +101,6 @@ namespace KitchenDeconstructor
             mats = new Material[] { MaterialUtils.GetExistingMaterial("fontello Atlas Material") };
             Prefab.GetChildFromPath("Blueprint/Labels/Unit").ApplyMaterial(mats);
           
-            /*
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Blueprint Light") };
-            Prefab.GetChildFromPath("Blueprint Copy/Blueprint/Cube").ApplyMaterial(mats);
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Flat Image - Faded") };
-            Prefab.GetChildFromPath("Blueprint Copy/Blueprint/Cube.001").ApplyMaterial(mats);
-
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Cake n Truffles Atlas Material_0") };
-            Prefab.GetChildFromPath("Blueprint Copy/Name").ApplyMaterial(mats);
-            Prefab.GetChildFromPath("Blueprint Copy/Labels/Rarity").ApplyMaterial(mats);
-
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("fontello Atlas Material") };
-            Prefab.GetChildFromPath("Blueprint Copy/Labels/Unit").ApplyMaterial(mats);
-            */
-
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Plastic - Purple") };
             Prefab.GetChildFromPath("Indicators/ResearchFlask/Cube").ApplyMaterial(mats);
 
@@ -163,7 +131,7 @@ namespace KitchenDeconstructor
 
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Wood - Dark") };
             Prefab.GetChildFromPath("Indicators/DiscountDesk/Desk Top").ApplyMaterial(mats);
-            
+            */
 
             //DestroyItemsOvernight
             //CDestroyItemAtDay

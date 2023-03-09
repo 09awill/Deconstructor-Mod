@@ -29,7 +29,7 @@ namespace KitchenDeconstructor
             {
                 var info = new LocalisationObject<ProcessInfo>();
 
-                info.Add(Locale.English, LocalisationUtils.CreateProcessInfo("Deconstruct", "<sprite name=\"cogsprite\">"));
+                info.Add(Locale.English, LocalisationUtils.CreateProcessInfo("Deconstruct", "<sprite name=\"cogpngwhitescaled\">"));
                 return info;
             }
         }

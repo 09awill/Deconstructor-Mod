@@ -28,7 +28,7 @@ namespace KitchenDeconstructor
                 if (Require<CIsInactive>(entity, out CIsInactive comp)) continue;
                 if (Require(entity, out CIDeconstruct deconstruct))
                 {
-                    if(deconstruct.isDeconstructed) EntityManager.AddComponent<CIsInactive>(entity);
+                    if(deconstruct.IsDeconstructed) EntityManager.AddComponent<CIsInactive>(entity);
                     if (Require<CTakesDuration>(entity, out CTakesDuration duration))
                     {
 
@@ -36,7 +36,7 @@ namespace KitchenDeconstructor
                         {
                             continue;
                         }
-                        deconstruct.isDeconstructed = true;
+                        deconstruct.IsDeconstructed = true;
                         EntityManager.SetComponentData(entity, deconstruct);
                         duration.IsLocked = true;
                         duration.Active = false;

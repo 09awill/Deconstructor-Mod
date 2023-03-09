@@ -24,7 +24,6 @@ namespace KitchenDeconstructor
     {
         private CItemHolder m_Holder;
         private CAppliance m_Appliance;
-        private CBlueprintStore m_Store;
         private CIDeconstruct m_Deconstruct;
         private bool m_Pickup = false;
         protected override InteractionType RequiredType => InteractionType.Grab;
@@ -34,15 +33,11 @@ namespace KitchenDeconstructor
             {
                 return false;
             }
-            if (!Require<CBlueprintStore>(data.Target, out m_Store))
-            {
-                return false;
-            }
             if (!Require<CIDeconstruct>(data.Target, out m_Deconstruct))
             {
                 return false;
             }
-            if (m_Store.InUse)
+            if (m_Deconstruct.InUse)
             {
                 m_Pickup = true;
                 if(m_Holder.HeldItem != Entity.Null)
@@ -68,21 +63,21 @@ namespace KitchenDeconstructor
         {
             if (m_Pickup)
             {
-                if (m_Deconstruct.isDeconstructed)
+                if (m_Deconstruct.IsDeconstructed)
                 {
                     //change to deconstructed
-                    m_Appliance = m_Store.ApplianceID;
+                    m_Appliance = m_Deconstruct.ApplianceID;
                     Mod.LogWarning("Starting Pickup");
                     //If Appliance should be blueprint
                     Entity entity = data.Context.CreateEntity();
                     data.Context.Set(entity, new CCreateAppliance
                     {
-                        ID = m_Store.BlueprintID
+                        ID = m_Deconstruct.BlueprintID
                     });
                     data.Context.Set(entity, GetComponent<CPosition>(data.Interactor));
                     data.Context.Set(entity, new CApplianceBlueprint
                     {
-                        Appliance = m_Store.ApplianceID,
+                        Appliance = m_Deconstruct.ApplianceID,
                     });
                     Mod.LogWarning("Setting require ping");
 
@@ -90,15 +85,15 @@ namespace KitchenDeconstructor
                     {
                         data.Context.Set(entity, new CShowApplianceInfo
                         {
-                            Appliance = m_Store.ApplianceID,
-                            Price = m_Store.Price,
+                            Appliance = m_Deconstruct.ApplianceID,
+                            Price = m_Deconstruct.Price,
                             ShowPrice = true
                         });
                     }
 
                     data.Context.Set(entity, new CForSale
                     {
-                        Price = m_Store.Price
+                        Price = m_Deconstruct.Price
                     });
                     data.Context.Set(entity, default(CShopEntity));
                     Mod.LogWarning("Assigning holding references");
@@ -118,7 +113,7 @@ namespace KitchenDeconstructor
                     Entity entity = data.Context.CreateEntity();
                     data.Context.Set(entity, new CCreateAppliance
                     {
-                        ID = m_Store.ApplianceID
+                        ID = m_Deconstruct.ApplianceID
                     });
 
                     data.Context.Set(entity, GetComponent<CPosition>(data.Interactor));
@@ -133,17 +128,14 @@ namespace KitchenDeconstructor
                         HeldItem = entity
                     });
                 }
-                CBlueprintStore bps = new CBlueprintStore()
+                CIDeconstruct deconstruct = new CIDeconstruct()
                 {
                     InUse = false,
-                    HasBeenCopied = true,
-                    HasBeenMadeFree = true,
-                    HasBeenUpgraded = true,
                     ApplianceID = 0,
                     BlueprintID = 0,
                     Price = 0
                 };
-                SetComponent(data.Target, bps);
+                SetComponent(data.Target, deconstruct);
             }
             else
             {
@@ -152,27 +144,27 @@ namespace KitchenDeconstructor
                     if (Require<CForSale>(m_Holder.HeldItem, out CForSale fs))
                     {
                         Mod.LogWarning("has Appliance blueprint so setting to already deconstructed");
-                        m_Deconstruct.isDeconstructed = true;
+                        m_Deconstruct.IsDeconstructed = true;
                         SetComponent(data.Target, m_Deconstruct);
                         EntityManager.AddComponent<CIsInactive>(data.Target);
-                        m_Store.InUse = true;
-                        m_Store.ApplianceID = bp.Appliance;
-                        m_Store.Price = fs.Price;
-                        m_Store.BlueprintID = ApplianceReferences.Blueprint;
-                        SetComponent(data.Target, m_Store);
+                        m_Deconstruct.InUse = true;
+                        m_Deconstruct.ApplianceID = bp.Appliance;
+                        m_Deconstruct.Price = fs.Price;
+                        m_Deconstruct.BlueprintID = ApplianceReferences.Blueprint;
+                        SetComponent(data.Target, m_Deconstruct);
                     }
                 } else
                 {
                     Mod.LogWarning("is Appliance blueprint so setting to not deconstructed");
 
-                    m_Deconstruct.isDeconstructed = false;
+                    m_Deconstruct.IsDeconstructed = false;
                     SetComponent(data.Target, m_Deconstruct);
                     EntityManager.RemoveComponent<CIsInactive>(data.Target);
-                    m_Store.InUse = true;
-                    m_Store.ApplianceID = m_Appliance.ID;
-                    m_Store.Price = 0;
-                    m_Store.BlueprintID = ApplianceReferences.Blueprint;
-                    SetComponent(data.Target, m_Store);
+                    m_Deconstruct.InUse = true;
+                    m_Deconstruct.ApplianceID = m_Appliance.ID;
+                    m_Deconstruct.Price = 0;
+                    m_Deconstruct.BlueprintID = ApplianceReferences.Blueprint;
+                    SetComponent(data.Target, m_Deconstruct);
                 }
                 EntityManager.DestroyEntity(m_Holder.HeldItem);
                 data.Context.Set(data.Interactor, default(CItemHolder));
