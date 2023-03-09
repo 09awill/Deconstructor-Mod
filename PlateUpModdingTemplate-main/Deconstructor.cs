@@ -47,91 +47,71 @@ namespace KitchenDeconstructor
         };
         public override List<IApplianceProperty> Properties => new List<IApplianceProperty>()
         {
-            new CIsInteractive(), new CIDeconstruct(), KitchenPropertiesUtils.GetCTakesDuration(5f, 0, false, true, false, DurationToolType.None, InteractionMode.Items, false, true, true, true,0), KitchenPropertiesUtils.GetCDisplayDuration(false, Mod.DeconstructProcess.ID, true)
+            new CIsInteractive(), new CIDeconstruct(), new CTakesDuration(){ Total = 5f, Manual = true, ManualNeedsEmptyHands = false, IsInverse = true, Mode = InteractionMode.Items, PreserveProgress = true, IsLocked = true}, KitchenPropertiesUtils.GetCDisplayDuration(false, Mod.DeconstructProcess.ID, false), new CLockDurationTimeOfDay(){ LockDuringNight = true, LockDuringDay = false }
         };
         public override void OnRegister(GameDataObject gameDataObject)
         {
-            /*
-            
+            Mod.LogWarning("Started");
             DeconstructorView deconstructorView = Prefab.AddComponent<DeconstructorView>();
+
+            foreach(GameObject go in Prefab.GetChildren())
+            {
+                Mod.LogWarning(go.name);
+            }
             VisualEffect vfx = Prefab.GetChildFromPath("VFX/Deconstruct").GetComponent<VisualEffect>();
+
             vfx.visualEffectAsset = Mod.Bundle.LoadAsset<VisualEffectAsset>("VFX_Deconstruct");
+            Mod.LogWarning("Got Visual Effect Asset");
+
             deconstructorView.UpgradeEffect = vfx;
-            deconstructorView.CabinetBase = Prefab.GetChildFromPath("WarehouseCabinet/Cabinet Body");
             AudioSource source = Prefab.GetChildFromPath("VFX/Deconstruct").AddComponent<AudioSource>();
             source.playOnAwake = false;
+            Mod.LogWarning("Added VFX");
+
             source.clip = Mod.Bundle.LoadAsset<AudioClip>("deconstructSoundEffect");
             deconstructorView.AudioClip = source.clip;
             deconstructorView.AudioSource = source;
             deconstructorView.Animator = Prefab.GetComponent<Animator>();
-            deconstructorView.ObjectMesh = Prefab.GetChildFromPath("WarehouseCabinet/Lorry");
+            deconstructorView.ObjectMesh = Prefab.GetChild("Box");
 
-            TextMeshPro tmp = Prefab.GetChild("Blueprint/Name").GetComponent<TextMeshPro>();
+            TextMeshPro tmp = Prefab.GetChild("PaperBack/Name").GetComponent<TextMeshPro>();
             tmp.material = MaterialUtils.GetExistingMaterial("Cake n Truffles Atlas Material_0");
             tmp.font = FontUtils.GetExistingTMPFont("Blueprint");
             Mod.LogWarning(tmp.font);
             
             deconstructorView.Title = tmp;
-            deconstructorView.Blueprint = Prefab.GetChild("Blueprint");
-            deconstructorView.BlueprintRenderer = Prefab.GetChildFromPath("Blueprint/Blueprint/Cube.001").GetComponent<MeshRenderer>();
+            deconstructorView.Blueprint = Prefab.GetChild("PaperBack");
+            deconstructorView.BlueprintRenderer = Prefab.GetChildFromPath("PaperBack/Paper").GetComponent<MeshRenderer>();
+
+            Mod.LogWarning("Halfway There");
 
 
-
-
-            Material[] mats = new Material[] { MaterialUtils.GetExistingMaterial("Metal - Soft Green Paint"), MaterialUtils.GetExistingMaterial("Metal Very Dark") };
-            Prefab.GetChildFromPath("WarehouseCabinet/Cabinet Body").ApplyMaterial(mats);
+            Material[] mats = new Material[] { MaterialUtils.GetExistingMaterial("Metal - Soft Green Paint") };
+            Prefab.GetChild("Deconstructor").ApplyMaterial(mats);
+            mats = new Material[] { MaterialUtils.GetExistingMaterial("Metal Very Dark") };
+            Prefab.GetChild("Feet").ApplyMaterial(mats);
+            Prefab.GetChild("Crusher").ApplyMaterial(mats);
+            Prefab.GetChildFromPath("Crusher/Cube.005").ApplyMaterial(mats);
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Wood 2")};
-            Prefab.GetChildFromPath("WarehouseCabinet/Crates").ApplyMaterial(mats);
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Plastic - Orange"), MaterialUtils.GetExistingMaterial("Plastic"), MaterialUtils.GetExistingMaterial("Plastic - Black") };
-            Prefab.GetChildFromPath("WarehouseCabinet/Lorry").ApplyMaterial(mats);
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Paper") };
-            Prefab.GetChildFromPath("WarehouseCabinet/Papers").ApplyMaterial(mats);
-            
+            Prefab.GetChild("Box").ApplyMaterial(mats);
+
+
+            Mod.LogWarning("Halfway There Again");
+
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Blueprint Light") };
-            Prefab.GetChildFromPath("Blueprint/Blueprint/Cube").ApplyMaterial(mats);
+            Prefab.GetChild("PaperBack").ApplyMaterial(mats);
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Flat Image - Faded") };
-            Prefab.GetChildFromPath("Blueprint/Blueprint/Cube.001").ApplyMaterial(mats);
+            Prefab.GetChildFromPath("PaperBack/Paper").ApplyMaterial(mats);
 
 
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Cake n Truffles Atlas Material_0") };
-            Prefab.GetChildFromPath("Blueprint/Name").ApplyMaterial(mats);
-            Prefab.GetChildFromPath("Blueprint/Labels/Rarity").ApplyMaterial(mats);
+            Prefab.GetChildFromPath("PaperBack/Name").ApplyMaterial(mats);
+            //Prefab.GetChildFromPath("Blueprint/Labels/Rarity").ApplyMaterial(mats);
 
             
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("fontello Atlas Material") };
-            Prefab.GetChildFromPath("Blueprint/Labels/Unit").ApplyMaterial(mats);
-          
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Plastic - Purple") };
-            Prefab.GetChildFromPath("Indicators/ResearchFlask/Cube").ApplyMaterial(mats);
-
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Oven Glass") };
-            Prefab.GetChildFromPath("Indicators/ResearchFlask/Cube.001").ApplyMaterial(mats);
-
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Plastic - Grey"), MaterialUtils.GetExistingMaterial("Plastic - Dark Grey") };
-            Prefab.GetChildFromPath("Indicators/CopyDesk (1)/Cube").ApplyMaterial(mats);
-
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Wood - Default") };
-            Prefab.GetChildFromPath("Indicators/CopyDesk (1)/Desk Legs").ApplyMaterial(mats);
-
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Wood - Dark") };
-            Prefab.GetChildFromPath("Indicators/CopyDesk (1)/Desk Top").ApplyMaterial(mats);
-
-
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Wood 2") };
-            Prefab.GetChildFromPath("Indicators/DiscountDesk/Crates").ApplyMaterial(mats);
-
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Plastic - Orange"), MaterialUtils.GetExistingMaterial("Plastic"), MaterialUtils.GetExistingMaterial("Plastic - Black") };
-            Prefab.GetChildFromPath("Indicators/DiscountDesk/Cube").ApplyMaterial(mats);
-
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Money") };
-            Prefab.GetChildFromPath("Indicators/DiscountDesk/Cylinder").ApplyMaterial(mats);
-
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Wood - Default") };
-            Prefab.GetChildFromPath("Indicators/DiscountDesk/Desk Legs").ApplyMaterial(mats);
-
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Wood - Dark") };
-            Prefab.GetChildFromPath("Indicators/DiscountDesk/Desk Top").ApplyMaterial(mats);
-            */
+            //mats = new Material[] { MaterialUtils.GetExistingMaterial("fontello Atlas Material") };
+            //Prefab.GetChildFromPath("Blueprint/Labels/Unit").ApplyMaterial(mats);
+            
 
             //DestroyItemsOvernight
             //CDestroyItemAtDay
@@ -146,7 +126,7 @@ namespace KitchenDeconstructor
                 public bool InUse;
 
                 [Key(1)]
-                public bool IsDeconstructing;
+                public bool IsDeconstructed;
 
                 [Key(2)]
                 public bool HasDeconstructEvent;
@@ -156,10 +136,15 @@ namespace KitchenDeconstructor
 
                 [Key(4)]
                 public int Appliance;
+                [Key(5)]
+                public bool Deconstructing;
+
+                [Key(6)]
+                public float DeconstructionProgress;
 
                 public bool IsChangedFrom(ViewData check)
                 {
-                    return InUse != check.InUse || IsDeconstructing != check.IsDeconstructing || HasDeconstructEvent != check.HasDeconstructEvent || IsDay != check.IsDay;
+                    return InUse != check.InUse || IsDeconstructed != check.IsDeconstructed || HasDeconstructEvent != check.HasDeconstructEvent || IsDay != check.IsDay || Deconstructing != check.Deconstructing || DeconstructionProgress != check.DeconstructionProgress;
                 }
 
                 public IUpdatableObject GetRelevantSubview(IObjectView view)
@@ -168,7 +153,6 @@ namespace KitchenDeconstructor
                 }
             }
             public VisualEffect UpgradeEffect;
-            public GameObject CabinetBase;
             public AudioClip AudioClip;
             public AudioSource AudioSource;
             public Animator Animator;
@@ -180,27 +164,54 @@ namespace KitchenDeconstructor
             public MeshRenderer BlueprintRenderer;
 
             public ViewData Data;
-            private static readonly int IsActive = Animator.StringToHash("IsActive");
+            private static readonly int ObjectPlacedBool = Animator.StringToHash("ObjectPlacedBool");
+            private static readonly int CrushObjectBool = Animator.StringToHash("CrushObjectBool");
+            private static readonly int PlaceBlueprintBool = Animator.StringToHash("PlaceBlueprintBool");
+            private static readonly int CrushObjectTime = Animator.StringToHash("DeconstructSpeed");
+
+            bool wasDefault = false;
+            bool wasObjectPlaced = false;
+            bool wasCrush = false;
+            bool wasPrint = false;
             protected override void UpdateData(ViewData data)
             {
+                if (Animator.GetCurrentAnimatorStateInfo(0).IsName("Default") != wasDefault)
+                {
+                    Mod.LogWarning($"Default State {!wasDefault}");
+                    wasDefault = Animator.GetCurrentAnimatorStateInfo(0).IsName("Default");
+
+                }
+                if (Animator.GetCurrentAnimatorStateInfo(0).IsName("ObjectPlaced") != wasObjectPlaced)
+                {
+                    Mod.LogWarning($"ObjectPlaced State {!wasObjectPlaced}");
+                    wasObjectPlaced = Animator.GetCurrentAnimatorStateInfo(0).IsName("ObjectPlaced");
+
+                }
+                if (Animator.GetCurrentAnimatorStateInfo(0).IsName("CrushObject") != wasCrush)
+                {
+                    Mod.LogWarning($"CrushObject State {!wasCrush}");
+                    wasCrush = Animator.GetCurrentAnimatorStateInfo(0).IsName("CrushObject");
+                }
+                if (Animator.GetCurrentAnimatorStateInfo(0).IsName("PrintBlueprint") != wasPrint)
+                {
+                    Mod.LogWarning($"PrintBlueprint State {!wasPrint}");
+                    wasPrint = Animator.GetCurrentAnimatorStateInfo(0).IsName("PrintBlueprint");
+                }
+                
                 if (!data.InUse)
                 {
-                    Animator.SetBool(IsActive, value: false);
+                    Animator.SetBool(CrushObjectBool, value: data.Deconstructing);
+                    Animator.SetFloat(CrushObjectTime, value: data.DeconstructionProgress);
+                    Animator.SetBool(ObjectPlacedBool, value: false);
+                    Animator.SetBool(PlaceBlueprintBool, value: false);
                     return;
                 }
-                Animator.SetBool(IsActive, value: true);
-                if (data.InUse)
+                else
                 {
-                    if (data.IsDeconstructing)
-                    {
-                        ObjectMesh.SetActive(false);
-                        Blueprint.SetActive(true);
-                    }
-                    else
-                    {
-                        ObjectMesh.SetActive(true);
-                        Blueprint.SetActive(false);
-                    }
+                    Animator.SetBool(CrushObjectBool, value: data.Deconstructing);
+                    Animator.SetFloat(CrushObjectTime, value: data.DeconstructionProgress);
+                    Animator.SetBool(ObjectPlacedBool, value: !data.IsDeconstructed);
+                    Animator.SetBool(PlaceBlueprintBool, value: data.IsDeconstructed);
                 }
 
                 if (Data.Appliance != data.Appliance && GameData.Main.TryGet<Appliance>(data.Appliance, out var output))
@@ -216,7 +227,7 @@ namespace KitchenDeconstructor
                     }
 
                 }
-                if (data.IsDeconstructing && !Data.IsDeconstructing && Data.IsDay)
+                if (data.IsDeconstructed && !Data.IsDeconstructed && Data.IsDay)
                 {
                     UpgradeEffect?.SendEvent("BurstDeconstruct");
                     AudioSource.Play();

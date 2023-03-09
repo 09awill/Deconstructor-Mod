@@ -145,7 +145,6 @@ namespace KitchenDeconstructor
                     {
                         Mod.LogWarning("has Appliance blueprint so setting to already deconstructed");
                         m_Deconstruct.IsDeconstructed = true;
-                        SetComponent(data.Target, m_Deconstruct);
                         EntityManager.AddComponent<CIsInactive>(data.Target);
                         m_Deconstruct.InUse = true;
                         m_Deconstruct.ApplianceID = bp.Appliance;
@@ -158,7 +157,6 @@ namespace KitchenDeconstructor
                     Mod.LogWarning("is Appliance blueprint so setting to not deconstructed");
 
                     m_Deconstruct.IsDeconstructed = false;
-                    SetComponent(data.Target, m_Deconstruct);
                     EntityManager.RemoveComponent<CIsInactive>(data.Target);
                     m_Deconstruct.InUse = true;
                     m_Deconstruct.ApplianceID = m_Appliance.ID;
