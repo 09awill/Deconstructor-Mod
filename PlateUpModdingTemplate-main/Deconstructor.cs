@@ -20,26 +20,12 @@ namespace KitchenDeconstructor
 
         public override string UniqueNameID => "Deconstructor";
         public override GameObject Prefab => Mod.Bundle.LoadAsset<GameObject>("Deconstructor");
-        public override PriceTier PriceTier => PriceTier.Medium;
+        public override PriceTier PriceTier => PriceTier.Expensive;
         public override bool SellOnlyAsDuplicate => false;
         public override bool IsPurchasable => true;
+        public override RarityTier RarityTier => RarityTier.Uncommon;
         public override ShoppingTags ShoppingTags => ShoppingTags.BlueprintStore | ShoppingTags.Misc;
         public override bool IsNonInteractive => false;
-
-        static FieldInfo Animator = ReflectionUtils.GetField<BlueprintStoreView>("Animator", BindingFlags.NonPublic | BindingFlags.Instance);
-        static FieldInfo Title = ReflectionUtils.GetField<BlueprintStoreView>("Title", BindingFlags.NonPublic | BindingFlags.Instance);
-        static FieldInfo Renderer = ReflectionUtils.GetField<BlueprintStoreView>("Renderer", BindingFlags.NonPublic | BindingFlags.Instance);
-        static FieldInfo IsMakingFree = ReflectionUtils.GetField<BlueprintStoreView>("IsMakingFree", BindingFlags.NonPublic | BindingFlags.Instance);
-        static FieldInfo IsUpgrading = ReflectionUtils.GetField<BlueprintStoreView>("IsUpgrading", BindingFlags.NonPublic | BindingFlags.Instance);
-        static FieldInfo IsCopying = ReflectionUtils.GetField<BlueprintStoreView>("IsCopying", BindingFlags.NonPublic | BindingFlags.Instance);
-        static FieldInfo CopyBlueprint = ReflectionUtils.GetField<BlueprintStoreView>("CopyBlueprint", BindingFlags.NonPublic | BindingFlags.Instance);
-        static FieldInfo CopyTitle = ReflectionUtils.GetField<BlueprintStoreView>("CopyTitle", BindingFlags.NonPublic | BindingFlags.Instance);
-        static FieldInfo CopyRenderer = ReflectionUtils.GetField<BlueprintStoreView>("CopyRenderer", BindingFlags.NonPublic | BindingFlags.Instance);
-        static FieldInfo CopyBlueprintMaterial = ReflectionUtils.GetField<BlueprintStoreView>("CopyBlueprintMaterial", BindingFlags.NonPublic | BindingFlags.Instance);
-        
-        //static FieldInfo pushObject = ReflectionUtils.GetField<BlueprintStoreView>("PushObject", BindingFlags.NonPublic | BindingFlags.Instance);
-
-
 
         public override List<(Locale, ApplianceInfo)> InfoList => new()
         {
@@ -216,7 +202,7 @@ namespace KitchenDeconstructor
 
                 if (Data.Appliance != data.Appliance && GameData.Main.TryGet<Appliance>(data.Appliance, out var output))
                 {
-                    if (Renderer != null)
+                    if (BlueprintRenderer != null)
                     {
                         BlueprintRenderer.material.SetTexture("_Image", PrefabSnapshot.GetSnapshot(output.Prefab));
                     }
