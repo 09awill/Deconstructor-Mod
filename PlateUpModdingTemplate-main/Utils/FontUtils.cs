@@ -1,8 +1,4 @@
-﻿using KitchenLib.Customs;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using KitchenDeconstructor;
@@ -89,7 +85,6 @@ namespace DeconstructorMod
             for (int i = 0; i < array.Length; i++)
             {
                 TMP_FontAsset font = (TMP_FontAsset)tmpArray[i];
-                Mod.LogWarning(font.name);
                 if (!m_FontIndex.ContainsKey(font.name))
                 {
                     m_TMPFontIndex.Add(font.name, font);

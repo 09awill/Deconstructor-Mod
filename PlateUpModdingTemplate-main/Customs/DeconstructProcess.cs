@@ -1,13 +1,10 @@
 ﻿using KitchenData;
+using KitchenDeconstructor;
 using KitchenLib.Customs;
 using KitchenLib.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace KitchenDeconstructor
+
+namespace DeconstructorMod.Customs
 {
     public class DeconstructProcess : CustomProcess
     {
@@ -29,7 +26,7 @@ namespace KitchenDeconstructor
             {
                 var info = new LocalisationObject<ProcessInfo>();
 
-                info.Add(Locale.English, LocalisationUtils.CreateProcessInfo("Deconstruct", "<sprite name=\"cogsprite\">"));
+                info.Add(Locale.English, LocalisationUtils.CreateProcessInfo("Deconstruct", "<sprite name=\"cogpngwhitescaled\">"));
                 return info;
             }
         }

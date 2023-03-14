@@ -1,0 +1,46 @@
+﻿using Kitchen;
+using KitchenData;
+using Unity.Collections;
+using Unity.Entities;
+
+namespace KitchenDeconstructor.Systems
+{
+    public struct CLockDurationTimeOfDay : IApplianceProperty, IAttachableProperty, IComponentData
+    {
+        public bool LockDuringDay;
+        public bool LockDuringNight;
+    }
+
+    [UpdateInGroup(typeof(DurationLocks))]
+    public class LockDurationByTimeOfDay : RestaurantSystem
+    {
+        EntityQuery Locks;
+
+        protected override void Initialise()
+        {
+            base.Initialise();
+            Locks = GetEntityQuery(typeof(CTakesDuration), typeof(CLockDurationTimeOfDay));
+        }
+
+        protected override void OnUpdate()
+        {
+            using NativeArray<Entity> entities = Locks.ToEntityArray(Allocator.Temp);
+            using NativeArray<CTakesDuration> durations = Locks.ToComponentDataArray<CTakesDuration>(Allocator.Temp);
+            using NativeArray<CLockDurationTimeOfDay> times = Locks.ToComponentDataArray<CLockDurationTimeOfDay>(Allocator.Temp);
+
+            for (int i = 0; i < entities.Length; i++)
+            {
+                Entity entity = entities[i];
+                CTakesDuration duration = durations[i];
+                CLockDurationTimeOfDay time = times[i];
+
+                if (Has<SIsDayTime>() && time.LockDuringDay || Has<SIsNightTime>() && time.LockDuringNight)
+                {
+                    duration.IsLocked = true;
+                    Set(entity, duration);
+                }
+            }
+        }
+    }
+
+}

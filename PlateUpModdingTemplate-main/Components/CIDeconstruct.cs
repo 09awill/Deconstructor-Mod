@@ -7,11 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Unity.Entities;
 
-namespace KitchenDeconstructor
+namespace DeconstructorMod.Components
 {
     public struct CIDeconstruct : IComponentData, IApplianceProperty, IAttachableProperty
     {
-        public bool isDeconstructed;
-
+        public bool IsDeconstructed;
+        public bool InUse;
+        public int ApplianceID;
+        public int Price;
+        public int BlueprintID;
     }
 }
