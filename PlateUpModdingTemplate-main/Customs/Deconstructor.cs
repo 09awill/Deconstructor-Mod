@@ -1,19 +1,19 @@
-﻿using DeconstructorMod;
+﻿using DeconstructorMod.Components;
+using KitchenDeconstructor.Systems;
 using IngredientLib.Util;
 using Kitchen;
 using KitchenData;
+using KitchenDeconstructor;
 using KitchenLib.Customs;
 using KitchenLib.Utils;
 using MessagePack;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using TMPro;
-using Unity.Entities;
 using UnityEngine;
 using UnityEngine.VFX;
+using static KitchenDeconstructor.Patches.StorageStructs;
 
-namespace KitchenDeconstructor
+namespace DeconstructorMod.Customs
 {
     public class Deconstructor : CustomAppliance
     {
@@ -33,76 +33,77 @@ namespace KitchenDeconstructor
         };
         public override List<IApplianceProperty> Properties => new List<IApplianceProperty>()
         {
-            new CIsInteractive(), new CIDeconstruct(), new CTakesDuration(){ Total = 5f, Manual = true, ManualNeedsEmptyHands = false, IsInverse = true, Mode = InteractionMode.Items, PreserveProgress = true, IsLocked = true}, KitchenPropertiesUtils.GetCDisplayDuration(false, Mod.DeconstructProcess.ID, false), new CLockDurationTimeOfDay(){ LockDuringNight = true, LockDuringDay = false }
+            new CIsInteractive(), new CIDeconstruct(), new CTakesDuration(){ Total = 5f, Manual = true, ManualNeedsEmptyHands = false, IsInverse = true, Mode = InteractionMode.Items, PreserveProgress = true, IsLocked = true}, KitchenPropertiesUtils.GetCDisplayDuration(false, Mod.DeconstructProcess.ID, false), new CLockDurationTimeOfDay(){ LockDuringNight = true, LockDuringDay = false }, new CStoredPlates(){ PlatesCount = 0}, new CStoredTables()
         };
         public override void OnRegister(GameDataObject gameDataObject)
         {
-            Mod.LogWarning("Started");
-            DeconstructorView deconstructorView = Prefab.AddComponent<DeconstructorView>();
-
-            foreach(GameObject go in Prefab.GetChildren())
-            {
-                Mod.LogWarning(go.name);
-            }
+            BlinkingLED LED = Prefab.AddComponent<BlinkingLED>();
+            AudioSource source = Prefab.GetChildFromPath("VFX/Deconstruct").AddComponent<AudioSource>();
             VisualEffect vfx = Prefab.GetChildFromPath("VFX/Deconstruct").GetComponent<VisualEffect>();
+            TextMeshPro tmp = Prefab.GetChild("PaperBack/Name").GetComponent<TextMeshPro>();
+
+            source.playOnAwake = false;
+            source.clip = Mod.Bundle.LoadAsset<AudioClip>("deconstructSoundEffect");
 
             vfx.visualEffectAsset = Mod.Bundle.LoadAsset<VisualEffectAsset>("VFX_Deconstruct");
-            Mod.LogWarning("Got Visual Effect Asset");
 
+            tmp.material = MaterialUtils.GetExistingMaterial("Cake n Truffles Atlas Material_0");
+            tmp.font = FontUtils.GetExistingTMPFont("Blueprint");
+
+
+            DeconstructorView deconstructorView = Prefab.AddComponent<DeconstructorView>();
+            deconstructorView.LED = LED;
             deconstructorView.UpgradeEffect = vfx;
-            AudioSource source = Prefab.GetChildFromPath("VFX/Deconstruct").AddComponent<AudioSource>();
-            source.playOnAwake = false;
-            Mod.LogWarning("Added VFX");
-
-            source.clip = Mod.Bundle.LoadAsset<AudioClip>("deconstructSoundEffect");
             deconstructorView.AudioClip = source.clip;
             deconstructorView.AudioSource = source;
             deconstructorView.Animator = Prefab.GetComponent<Animator>();
             deconstructorView.ObjectMesh = Prefab.GetChild("Box");
-
-            TextMeshPro tmp = Prefab.GetChild("PaperBack/Name").GetComponent<TextMeshPro>();
-            tmp.material = MaterialUtils.GetExistingMaterial("Cake n Truffles Atlas Material_0");
-            tmp.font = FontUtils.GetExistingTMPFont("Blueprint");
-            Mod.LogWarning(tmp.font);
-            
             deconstructorView.Title = tmp;
             deconstructorView.Blueprint = Prefab.GetChild("PaperBack");
             deconstructorView.BlueprintRenderer = Prefab.GetChildFromPath("PaperBack/Paper").GetComponent<MeshRenderer>();
+            deconstructorView.ObjectRenderer = Prefab.GetChildFromPath("Box/ItemRender").GetComponent<MeshRenderer>();
 
-            Mod.LogWarning("Halfway There");
 
 
+
+            SetupMaterials();
+
+
+        }
+
+        public void SetupMaterials()
+        {
             Material[] mats = new Material[] { MaterialUtils.GetExistingMaterial("Metal - Soft Green Paint") };
             Prefab.GetChild("Deconstructor").ApplyMaterial(mats);
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Metal Very Dark") };
             Prefab.GetChild("Feet").ApplyMaterial(mats);
             Prefab.GetChild("Crusher").ApplyMaterial(mats);
+            Prefab.GetChild("SmallGear").ApplyMaterial(mats);
+            Prefab.GetChild("LargeGear").ApplyMaterial(mats);
+            Prefab.GetChildFromPath("SmallGear/SmallGearCentre").ApplyMaterial(mats);
+            Prefab.GetChildFromPath("LargeGear/LargeGearCentre").ApplyMaterial(mats);
             Prefab.GetChildFromPath("Crusher/Cube.005").ApplyMaterial(mats);
-            mats = new Material[] { MaterialUtils.GetExistingMaterial("Wood 2")};
+
+
+            mats = new Material[] { MaterialUtils.GetExistingMaterial("Wood 2") };
             Prefab.GetChild("Box").ApplyMaterial(mats);
-
-
-            Mod.LogWarning("Halfway There Again");
-
+            mats = new Material[] { MaterialUtils.GetExistingMaterial("Plate") };
+            Prefab.GetChild("Cube").ApplyMaterial(mats);
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Blueprint Light") };
             Prefab.GetChild("PaperBack").ApplyMaterial(mats);
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Flat Image - Faded") };
             Prefab.GetChildFromPath("PaperBack/Paper").ApplyMaterial(mats);
+            Prefab.GetChildFromPath("Box/ItemRender").ApplyMaterial(mats);
+
+
+            mats = new Material[] { MaterialUtils.GetExistingMaterial("Plastic - Dark Green") };
+            Prefab.GetChildFromPath("Deconstructor/PrintedLED").ApplyMaterial(mats);
+
 
 
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Cake n Truffles Atlas Material_0") };
             Prefab.GetChildFromPath("PaperBack/Name").ApplyMaterial(mats);
-            //Prefab.GetChildFromPath("Blueprint/Labels/Rarity").ApplyMaterial(mats);
-
-            
-            //mats = new Material[] { MaterialUtils.GetExistingMaterial("fontello Atlas Material") };
-            //Prefab.GetChildFromPath("Blueprint/Labels/Unit").ApplyMaterial(mats);
-            
-
-            //DestroyItemsOvernight
-            //CDestroyItemAtDay
         }
-
         public class DeconstructorView : UpdatableObjectView<DeconstructorView.ViewData>
         {
             [MessagePackObject(false)]
@@ -148,6 +149,9 @@ namespace KitchenDeconstructor
             public TextMeshPro Title;
             public GameObject Blueprint;
             public MeshRenderer BlueprintRenderer;
+            public BlinkingLED LED;
+            public MeshRenderer ObjectRenderer;
+
 
             public ViewData Data;
             private static readonly int ObjectPlacedBool = Animator.StringToHash("ObjectPlacedBool");
@@ -155,41 +159,17 @@ namespace KitchenDeconstructor
             private static readonly int PlaceBlueprintBool = Animator.StringToHash("PlaceBlueprintBool");
             private static readonly int CrushObjectTime = Animator.StringToHash("DeconstructSpeed");
 
-            bool wasDefault = false;
-            bool wasObjectPlaced = false;
-            bool wasCrush = false;
-            bool wasPrint = false;
             protected override void UpdateData(ViewData data)
             {
-                if (Animator.GetCurrentAnimatorStateInfo(0).IsName("Default") != wasDefault)
-                {
-                    Mod.LogWarning($"Default State {!wasDefault}");
-                    wasDefault = Animator.GetCurrentAnimatorStateInfo(0).IsName("Default");
 
-                }
-                if (Animator.GetCurrentAnimatorStateInfo(0).IsName("ObjectPlaced") != wasObjectPlaced)
-                {
-                    Mod.LogWarning($"ObjectPlaced State {!wasObjectPlaced}");
-                    wasObjectPlaced = Animator.GetCurrentAnimatorStateInfo(0).IsName("ObjectPlaced");
 
-                }
-                if (Animator.GetCurrentAnimatorStateInfo(0).IsName("CrushObject") != wasCrush)
-                {
-                    Mod.LogWarning($"CrushObject State {!wasCrush}");
-                    wasCrush = Animator.GetCurrentAnimatorStateInfo(0).IsName("CrushObject");
-                }
-                if (Animator.GetCurrentAnimatorStateInfo(0).IsName("PrintBlueprint") != wasPrint)
-                {
-                    Mod.LogWarning($"PrintBlueprint State {!wasPrint}");
-                    wasPrint = Animator.GetCurrentAnimatorStateInfo(0).IsName("PrintBlueprint");
-                }
-                
                 if (!data.InUse)
                 {
                     Animator.SetBool(CrushObjectBool, value: data.Deconstructing);
                     Animator.SetFloat(CrushObjectTime, value: data.DeconstructionProgress);
                     Animator.SetBool(ObjectPlacedBool, value: false);
                     Animator.SetBool(PlaceBlueprintBool, value: false);
+                    LED.SetBlink(false);
                     return;
                 }
                 else
@@ -198,6 +178,7 @@ namespace KitchenDeconstructor
                     Animator.SetFloat(CrushObjectTime, value: data.DeconstructionProgress);
                     Animator.SetBool(ObjectPlacedBool, value: !data.IsDeconstructed);
                     Animator.SetBool(PlaceBlueprintBool, value: data.IsDeconstructed);
+                    LED.SetBlink(data.IsDeconstructed);
                 }
 
                 if (Data.Appliance != data.Appliance && GameData.Main.TryGet<Appliance>(data.Appliance, out var output))
@@ -211,6 +192,10 @@ namespace KitchenDeconstructor
                     {
                         Title.text = output.Name;
                     }
+                    if (ObjectRenderer != null)
+                    {
+                        ObjectRenderer.material.SetTexture("_Image", PrefabSnapshot.GetSnapshot(output.Prefab));
+                    }
 
                 }
                 if (data.IsDeconstructed && !Data.IsDeconstructed && Data.IsDay)
@@ -223,6 +208,6 @@ namespace KitchenDeconstructor
 
         }
     }
-    
+
 
 }

@@ -1,4 +1,6 @@
-﻿using KitchenData;
+﻿using DeconstructorMod.Customs;
+using Kitchen;
+using KitchenData;
 using KitchenLib;
 using KitchenLib.Customs;
 using KitchenLib.Event;
@@ -74,8 +76,6 @@ namespace KitchenDeconstructor
             Bundle.LoadAllAssets<VisualEffectAsset>();
             Bundle.LoadAllAssets<AudioClip>();
             Bundle.LoadAllAssets<TMP_SpriteAsset>();
-            
-            
             var spriteAsset = Bundle.LoadAsset<TMP_SpriteAsset>("cogpngwhitescaled");
             Material m = new Material(TMP_Settings.defaultSpriteAsset.material);
             spriteAsset.material = m;
@@ -85,7 +85,6 @@ namespace KitchenDeconstructor
             LogInfo("Done loading asset bundle.");
             // Register custom GDOs
             AddGameData();
-
             // Perform actions when game data is built
             Events.BuildGameDataEvent += delegate (object s, BuildGameDataEventArgs args)
             {

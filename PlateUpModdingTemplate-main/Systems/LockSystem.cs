@@ -1,14 +1,9 @@
 ﻿using Kitchen;
 using KitchenData;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Unity.Collections;
 using Unity.Entities;
 
-namespace KitchenDeconstructor
+namespace KitchenDeconstructor.Systems
 {
     public struct CLockDurationTimeOfDay : IApplianceProperty, IAttachableProperty, IComponentData
     {
@@ -39,7 +34,7 @@ namespace KitchenDeconstructor
                 CTakesDuration duration = durations[i];
                 CLockDurationTimeOfDay time = times[i];
 
-                if ((Has<SIsDayTime>() && time.LockDuringDay) || (Has<SIsNightTime>() && time.LockDuringNight))
+                if (Has<SIsDayTime>() && time.LockDuringDay || Has<SIsNightTime>() && time.LockDuringNight)
                 {
                     duration.IsLocked = true;
                     Set(entity, duration);

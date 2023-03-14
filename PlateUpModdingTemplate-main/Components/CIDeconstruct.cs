@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Unity.Entities;
 
-namespace KitchenDeconstructor
+namespace DeconstructorMod.Components
 {
     public struct CIDeconstruct : IComponentData, IApplianceProperty, IAttachableProperty
     {
