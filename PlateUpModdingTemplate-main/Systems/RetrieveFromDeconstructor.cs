@@ -111,20 +111,15 @@ namespace KitchenDeconstructor.Systems
             }
             if (GameData.Main.TryGet<Appliance>(m_Deconstruct.ApplianceID, out var appliance) && appliance.GetProperty<CItemProvider>(out var provider) && provider.DefaultProvidedItem == ItemReferences.Plate)
             {
-                Mod.LogWarning("Removing Plates");
-
                 m_Plates.PlatesCount -= provider.Maximum;
                 Set(data.Target, m_Plates);
             }
 
             if (appliance.GetProperty<CApplianceTable>(out _))
             {
-                Mod.LogWarning("Removing Tables");
-
                 m_Tables.Remove(appliance.ID);
                 Set(data.Target, m_Tables);
             }
-            Mod.LogWarning("Made it past two checks");
             CIDeconstruct deconstruct = new CIDeconstruct()
             {
                 InUse = false,
