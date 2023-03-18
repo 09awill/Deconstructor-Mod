@@ -23,7 +23,7 @@ namespace KitchenDeconstructor
         // Mod Version must follow semver notation e.g. "1.2.3"
         public const string MOD_GUID = "Madvion.PlateUp.DeconstructorMod";
         public const string MOD_NAME = "DeconstructorMod";
-        public const string MOD_VERSION = "0.1.0";
+        public const string MOD_VERSION = "0.1.1";
         public const string MOD_AUTHOR = "Madvion";
         public const string MOD_GAMEVERSION = ">=1.1.4";
         // Game version this mod is designed for in semver
@@ -88,6 +88,7 @@ namespace KitchenDeconstructor
             // Perform actions when game data is built
             Events.BuildGameDataEvent += delegate (object s, BuildGameDataEventArgs args)
             {
+                GetExistingGDO<Appliance>(ApplianceReferences.BlueprintCabinet).Upgrades.Add(Deconstructor);
             };
         }
 

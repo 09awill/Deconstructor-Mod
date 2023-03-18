@@ -23,11 +23,11 @@ namespace DeconstructorMod.Customs
         public override GameObject Prefab => Mod.Bundle.LoadAsset<GameObject>("Deconstructor");
         public override PriceTier PriceTier => PriceTier.Expensive;
         public override bool SellOnlyAsDuplicate => false;
-        public override bool IsPurchasable => true;
+        public override bool IsPurchasable => false;
+        public override bool IsPurchasableAsUpgrade => true;
         public override RarityTier RarityTier => RarityTier.Uncommon;
         public override ShoppingTags ShoppingTags => ShoppingTags.BlueprintStore | ShoppingTags.Misc;
         public override bool IsNonInteractive => false;
-
         public override List<(Locale, ApplianceInfo)> InfoList => new()
         {
             ( Locale.English, LocalisationUtils.CreateApplianceInfo("Deconstructor", "Allows you to deconstruct your kitchen appliances", new(), new()) )
