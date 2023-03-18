@@ -1,6 +1,5 @@
 ﻿using DeconstructorMod.Components;
 using KitchenDeconstructor.Systems;
-using IngredientLib.Util;
 using Kitchen;
 using KitchenData;
 using KitchenDeconstructor;
@@ -12,6 +11,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.VFX;
 using static KitchenDeconstructor.Patches.StorageStructs;
+using UnityEngine.InputSystem;
+using System.Data;
 
 namespace DeconstructorMod.Customs
 {
@@ -33,13 +34,13 @@ namespace DeconstructorMod.Customs
         };
         public override List<IApplianceProperty> Properties => new List<IApplianceProperty>()
         {
-            new CIsInteractive(), new CIDeconstruct(), new CTakesDuration(){ Total = 5f, Manual = true, ManualNeedsEmptyHands = false, IsInverse = true, Mode = InteractionMode.Items, PreserveProgress = true, IsLocked = true}, KitchenPropertiesUtils.GetCDisplayDuration(false, Mod.DeconstructProcess.ID, false), new CLockDurationTimeOfDay(){ LockDuringNight = true, LockDuringDay = false }, new CStoredPlates(){ PlatesCount = 0}, new CStoredTables()
+            new CIsInteractive(), new CIDeconstruct(), new CTakesDuration(){ Total = 5f, Manual = true, ManualNeedsEmptyHands = false, IsInverse = true, Mode = InteractionMode.Items, PreserveProgress = true, IsLocked = true}, KitchenPropertiesUtils.GetCDisplayDuration(false, Mod.DeconstructProcess.ID, false), new CLockDurationTimeOfDay(){ LockDuringNight = true, LockDuringDay = false }, new CStoredPlates(){ PlatesCount = 0}, new CStoredTables(),
         };
         public override void OnRegister(GameDataObject gameDataObject)
         {
             BlinkingLED LED = Prefab.AddComponent<BlinkingLED>();
-            AudioSource source = Prefab.GetChildFromPath("VFX/Deconstruct").AddComponent<AudioSource>();
-            VisualEffect vfx = Prefab.GetChildFromPath("VFX/Deconstruct").GetComponent<VisualEffect>();
+            AudioSource source = Prefab.GetChild("VFX/Deconstruct").AddComponent<AudioSource>();
+            VisualEffect vfx = Prefab.GetChild("VFX/Deconstruct").GetComponent<VisualEffect>();
             TextMeshPro tmp = Prefab.GetChild("PaperBack/Name").GetComponent<TextMeshPro>();
 
             source.playOnAwake = false;
@@ -49,8 +50,6 @@ namespace DeconstructorMod.Customs
 
             tmp.material = MaterialUtils.GetExistingMaterial("Cake n Truffles Atlas Material_0");
             tmp.font = FontUtils.GetExistingTMPFont("Blueprint");
-
-
             DeconstructorView deconstructorView = Prefab.AddComponent<DeconstructorView>();
             deconstructorView.LED = LED;
             deconstructorView.UpgradeEffect = vfx;
@@ -60,8 +59,8 @@ namespace DeconstructorMod.Customs
             deconstructorView.ObjectMesh = Prefab.GetChild("Box");
             deconstructorView.Title = tmp;
             deconstructorView.Blueprint = Prefab.GetChild("PaperBack");
-            deconstructorView.BlueprintRenderer = Prefab.GetChildFromPath("PaperBack/Paper").GetComponent<MeshRenderer>();
-            deconstructorView.ObjectRenderer = Prefab.GetChildFromPath("Box/ItemRender").GetComponent<MeshRenderer>();
+            deconstructorView.BlueprintRenderer = Prefab.GetChild("PaperBack/Paper").GetComponent<MeshRenderer>();
+            deconstructorView.ObjectRenderer = Prefab.GetChild("Box/ItemRender").GetComponent<MeshRenderer>();
 
 
 
@@ -80,9 +79,9 @@ namespace DeconstructorMod.Customs
             Prefab.GetChild("Crusher").ApplyMaterial(mats);
             Prefab.GetChild("SmallGear").ApplyMaterial(mats);
             Prefab.GetChild("LargeGear").ApplyMaterial(mats);
-            Prefab.GetChildFromPath("SmallGear/SmallGearCentre").ApplyMaterial(mats);
-            Prefab.GetChildFromPath("LargeGear/LargeGearCentre").ApplyMaterial(mats);
-            Prefab.GetChildFromPath("Crusher/Cube.005").ApplyMaterial(mats);
+            Prefab.GetChild("SmallGear/SmallGearCentre").ApplyMaterial(mats);
+            Prefab.GetChild("LargeGear/LargeGearCentre").ApplyMaterial(mats);
+            Prefab.GetChild("Crusher/Cube.005").ApplyMaterial(mats);
 
 
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Wood 2") };
@@ -92,17 +91,17 @@ namespace DeconstructorMod.Customs
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Blueprint Light") };
             Prefab.GetChild("PaperBack").ApplyMaterial(mats);
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Flat Image - Faded") };
-            Prefab.GetChildFromPath("PaperBack/Paper").ApplyMaterial(mats);
-            Prefab.GetChildFromPath("Box/ItemRender").ApplyMaterial(mats);
+            Prefab.GetChild("PaperBack/Paper").ApplyMaterial(mats);
+            Prefab.GetChild("Box/ItemRender").ApplyMaterial(mats);
 
 
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Plastic - Dark Green") };
-            Prefab.GetChildFromPath("Deconstructor/PrintedLED").ApplyMaterial(mats);
+            Prefab.GetChild("Deconstructor/PrintedLED").ApplyMaterial(mats);
 
 
 
             mats = new Material[] { MaterialUtils.GetExistingMaterial("Cake n Truffles Atlas Material_0") };
-            Prefab.GetChildFromPath("PaperBack/Name").ApplyMaterial(mats);
+            Prefab.GetChild("PaperBack/Name").ApplyMaterial(mats);
         }
         public class DeconstructorView : UpdatableObjectView<DeconstructorView.ViewData>
         {
