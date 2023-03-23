@@ -8,9 +8,7 @@ using static KitchenDeconstructor.Patches.StorageStructs;
 
 namespace KitchenDeconstructor.Systems
 {
-    [UpdateBefore(typeof(PickUpAndDropAppliance))]
-    [UpdateBefore(typeof(StoreBlueprint))]
-    [UpdateBefore(typeof(RetrieveBlueprint))]
+    [UpdateInGroup(typeof(HighPriorityInteractionGroup))]
     public class RetrieveFromDeconstructor : ApplianceInteractionSystem
     {
         private CItemHolder m_Holder;

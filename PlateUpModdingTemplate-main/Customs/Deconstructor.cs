@@ -42,7 +42,7 @@ namespace DeconstructorMod.Customs
             AudioSource source = Prefab.GetChild("VFX/Deconstruct").AddComponent<AudioSource>();
             VisualEffect vfx = Prefab.GetChild("VFX/Deconstruct").GetComponent<VisualEffect>();
             TextMeshPro tmp = Prefab.GetChild("PaperBack/Name").GetComponent<TextMeshPro>();
-
+            source.volume = 0.1f;
             source.playOnAwake = false;
             source.clip = Mod.Bundle.LoadAsset<AudioClip>("deconstructSoundEffect");
 
