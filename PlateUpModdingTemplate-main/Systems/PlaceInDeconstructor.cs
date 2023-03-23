@@ -53,6 +53,13 @@ namespace KitchenDeconstructor.Systems
             {
                 return false;
             }
+            if(Require(m_Holder.HeldItem, out CApplianceBlueprint pBP))
+            {
+                if(pBP.IsCopy)
+                {
+                    return false;
+                }
+            }
             if (Has<CApplyDecor>(m_Holder.HeldItem))  // PreventWallpapers/Flooring
             {
                 return false;
@@ -110,7 +117,7 @@ namespace KitchenDeconstructor.Systems
             m_Deconstruct.InUse = true;
             m_Deconstruct.ApplianceID = m_Appliance.ID;
             GameData.Main.TryGet<Appliance>(m_Appliance.ID, out var app);
-            m_Deconstruct.Price = 0;
+            m_Deconstruct.Price = app.PurchaseCost;
             m_Deconstruct.BlueprintID = ApplianceReferences.Blueprint;
             SetComponent(pData.Target, m_Deconstruct);
             CheckNecessaryAppliances(ref pData, m_Appliance.ID);
