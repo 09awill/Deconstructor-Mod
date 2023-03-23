@@ -13,6 +13,7 @@ using UnityEngine.VFX;
 using static KitchenDeconstructor.Patches.StorageStructs;
 using UnityEngine.InputSystem;
 using System.Data;
+using KitchenLib.References;
 
 namespace DeconstructorMod.Customs
 {
@@ -32,6 +33,7 @@ namespace DeconstructorMod.Customs
         {
             ( Locale.English, LocalisationUtils.CreateApplianceInfo("Deconstructor", "Allows you to deconstruct your kitchen appliances", new(), new()) )
         };
+        public override List<Appliance> Upgrades => new List<Appliance>() { Mod.BlueprintCabinet };
         public override List<IApplianceProperty> Properties => new List<IApplianceProperty>()
         {
             new CIsInteractive(), new CIDeconstruct(), new CTakesDuration(){ Total = 5f, Manual = true, ManualNeedsEmptyHands = false, IsInverse = true, Mode = InteractionMode.Items, PreserveProgress = true, IsLocked = true}, KitchenPropertiesUtils.GetCDisplayDuration(false, Mod.DeconstructProcess.ID, false), new CLockDurationTimeOfDay(){ LockDuringNight = true, LockDuringDay = false }, new CStoredPlates(){ PlatesCount = 0}, new CStoredTables(),
