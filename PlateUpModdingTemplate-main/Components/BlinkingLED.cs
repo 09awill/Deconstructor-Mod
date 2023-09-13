@@ -1,7 +1,6 @@
 ﻿using KitchenLib.Utils;
 using UnityEngine;
 using KitchenDeconstructor;
-using IngredientLib.Util;
 using System.Collections;
 namespace DeconstructorMod.Components
 {
@@ -14,7 +13,7 @@ namespace DeconstructorMod.Components
         private Coroutine m_BlinkCoroutine;
         private void Awake()
         {
-            m_LED = gameObject.GetChildFromPath("Deconstructor/PrintedLED");
+            m_LED = gameObject.GetChild("Deconstructor/PrintedLED");
             m_StartMat = new Material[] { MaterialUtils.GetExistingMaterial("Plastic - Dark Green") };
             m_BlinkMat = new Material[] { MaterialUtils.GetExistingMaterial("Paper - Postit Green") };
 
