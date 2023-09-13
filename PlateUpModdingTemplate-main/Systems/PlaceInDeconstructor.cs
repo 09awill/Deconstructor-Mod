@@ -117,7 +117,7 @@ namespace KitchenDeconstructor.Systems
             m_Deconstruct.InUse = true;
             m_Deconstruct.ApplianceID = m_Appliance.ID;
             GameData.Main.TryGet<Appliance>(m_Appliance.ID, out var app);
-            m_Deconstruct.Price = app.PurchaseCost;
+            m_Deconstruct.Price = PriceUpdater.GetSellPrice(EntityManager, m_Appliance.ID);
             m_Deconstruct.BlueprintID = ApplianceReferences.Blueprint;
             SetComponent(pData.Target, m_Deconstruct);
             CheckNecessaryAppliances(ref pData, m_Appliance.ID);

@@ -7,11 +7,11 @@ using KitchenLib.Event;
 using KitchenLib.References;
 using KitchenLib.Utils;
 using KitchenMods;
+using PreferenceSystem;
 using System.Linq;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.VFX;
 
 // Namespace should have "Kitchen" in the beginning
@@ -24,7 +24,7 @@ namespace KitchenDeconstructor
         // Mod Version must follow semver notation e.g. "1.2.3"
         public const string MOD_GUID = "Madvion.PlateUp.DeconstructorMod";
         public const string MOD_NAME = "DeconstructorMod";
-        public const string MOD_VERSION = "0.1.3";
+        public const string MOD_VERSION = "0.1.4";
         public const string MOD_AUTHOR = "Madvion";
         public const string MOD_GAMEVERSION = ">=1.1.4";
         // Game version this mod is designed for in semver
@@ -38,9 +38,11 @@ namespace KitchenDeconstructor
         public const bool DEBUG_MODE = false;
 #endif
         internal static Appliance BlueprintCabinet => GetExistingGDO<Appliance>(ApplianceReferences.BlueprintCabinet);
-
+        public static PreferenceSystemManager PrefManager;
         internal static Appliance Deconstructor => GetModdedGDO<Appliance, Deconstructor>();
         internal static Process DeconstructProcess => GetModdedGDO<Process, DeconstructProcess>();
+        public static string RETURN_MONEY_ID = "ReturnMoneyOnDeconstruct";
+        public static string RETURN_MONEY_PERCENTAGE_ID = "ReturnMoneyOnDeconstructPercentage";
 
 
         public static AssetBundle Bundle;
@@ -58,7 +60,8 @@ namespace KitchenDeconstructor
 
             AddGameDataObject<Deconstructor>();
             AddGameDataObject<DeconstructProcess>();
-
+            PrefManager = new PreferenceSystemManager(MOD_GUID, MOD_NAME);
+            CreatePreferences();
             LogInfo("Done loading game data.");
         }
 
@@ -92,6 +95,26 @@ namespace KitchenDeconstructor
             {
                 GetExistingGDO<Appliance>(ApplianceReferences.BlueprintCabinet).Upgrades.Add(Deconstructor);
             };
+        }
+
+        private void CreatePreferences()
+        {
+            string[] strings;
+            PrefManager
+                .AddLabel("Deconstructor")
+                .AddLabel("Return money on deconstruct : ")
+                .AddOption(RETURN_MONEY_ID, false, new bool[] { false, true }, new string[] { "Disabled", "Enabled" })
+                .AddLabel("Money Returned : ")
+                .AddOption(RETURN_MONEY_PERCENTAGE_ID, 100, Utils.GenerateIntArray("0|100|1", out strings, postfix: "%"), strings)
+                .AddSpacer()
+                .AddSpacer();
+
+            PrefManager.RegisterMenu(PreferenceSystemManager.MenuType.MainMenu);
+            PrefManager.RegisterMenu(PreferenceSystemManager.MenuType.PauseMenu);
+
+
+
+
         }
 
         private static T1 GetModdedGDO<T1, T2>() where T1 : GameDataObject

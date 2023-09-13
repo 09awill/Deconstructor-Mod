@@ -16,7 +16,7 @@ namespace KitchenDeconstructor.Systems
         protected override void OnUpdate()
         {
             NativeArray<Entity> entities = m_ApplianceQuery.ToEntityArray(Allocator.Temp);
-
+            var moneyFromDeconstructing = 0;
             foreach (Entity entity in entities)
             {
                 if (Require(entity, out CIsInactive comp)) continue;
@@ -34,12 +34,16 @@ namespace KitchenDeconstructor.Systems
                         EntityManager.SetComponentData(entity, deconstruct);
                         duration.IsLocked = true;
                         duration.Active = false;
-
                         EntityManager.SetComponentData(entity, duration);
                         EntityManager.AddComponent<CIsInactive>(entity);
+                        var percentMultiplier = 100f / (float)Mod.PrefManager.Get<int>(Mod.RETURN_MONEY_PERCENTAGE_ID);
+                        var price = (float)deconstruct.Price / percentMultiplier;
+                        moneyFromDeconstructing += (int)price;
+
                     }
                 }
             }
+            if(Mod.PrefManager.Get<bool>(Mod.RETURN_MONEY_ID)) SetSingleton<SMoney>(GetSingleton<SMoney>() + moneyFromDeconstructing);
             entities.Dispose();
         }
     }
