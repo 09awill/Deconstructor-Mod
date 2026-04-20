@@ -16,9 +16,9 @@ namespace KitchenDeconstructor.Patches
     {
         [HarmonyPatch(typeof(GrantNecessaryAppliances), "TotalPlates")]
         [HarmonyPostfix]
-        static void TotalPlates_Postfix(ref int __result)
+        static void TotalPlates_Postfix(ref (int unsold, int total) __result)
         {
-            __result += GrantNecessaryAppliancesController.StoredPlates;
+            __result.total += GrantNecessaryAppliancesController.StoredPlates;
         }
 
 
